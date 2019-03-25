@@ -1,4 +1,0 @@
-(sym_lib_table
-  (lib (name New_Library)(type Legacy)(uri "C:/Users/lulur/Desktop/embedded system/test/New_Library.lib")(options "")(descr ""))
-  (lib (name test)(type Legacy)(uri "C:/Users/lulur/Desktop/embedded system/test/test.lib")(options "")(descr ""))
-)
