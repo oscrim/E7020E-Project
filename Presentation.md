@@ -11,6 +11,7 @@ The choice of the components was made following our given budget and needs. We t
 ## Design of the Kicad
 
 We started to design the implementation of the essentials components, including the microcontroller, the voltage regulator system and the programmable pins. Then we added our own components. Finally we added some more backup pins and some testpoints to check is everything is working as intended.
+We also added two buttons, one to reset the MCU and one to control the screen.
 
 ## Soldering
 
@@ -19,4 +20,4 @@ At some point we had a problem with the usb connector. The print on our Kicad wa
 
 ## Use of the bluetooth module
 
-We were able to communicate with the bluetooth module using a serial communication with a computer. we could modify some parameters of it or simply send data to the mcu with an UART connection. We also implemented two LEDs, one green and one red. The green LED tells us if the module wait for a connection, is connected or is in control mode. The red LED lights up everytime we send a data to the mcu.
+We were able to communicate with the bluetooth module using a serial communication with a computer. we could modify some parameters of it or simply send data to the MCU with an UART connection. We also implemented two LEDs, one green and one red. The green LED tells us if the module wait for a connection, is connected or is in control mode. The red LED lights up everytime we send a data to the MCU.
