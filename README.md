@@ -5,8 +5,8 @@ Design and build a PCB to upgrade a toaster to an e-Toaster !
 
 # Prerequisites 
 
-Archlinux
-Visual studio
+* Archlinux
+* Visual studio
 
 # Implementation
 
