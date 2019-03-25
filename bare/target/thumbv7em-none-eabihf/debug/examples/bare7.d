@@ -1,0 +1,1 @@
+/home/carl/embedded\ system/e7020e_2019/target/thumbv7em-none-eabihf/debug/examples/bare7: /home/carl/embedded\ system/e7020e_2019/build.rs /home/carl/embedded\ system/e7020e_2019/examples/bare7.rs /home/carl/embedded\ system/e7020e_2019/memory.x memory.x

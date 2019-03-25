@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["I2C4SCLR","Value of the field"],["I2C4SDAR","Value of the field"],["R","Value read from the register"],["W","Value to write to the register"],["_I2C4SCLW","Proxy"],["_I2C4SDAW","Proxy"]]});

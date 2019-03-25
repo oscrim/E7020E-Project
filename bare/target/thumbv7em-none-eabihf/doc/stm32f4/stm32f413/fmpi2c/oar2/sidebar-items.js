@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["OA21_7R","Value of the field"],["OA2ENR","Value of the field"],["OA2MSKR","Value of the field"],["R","Value read from the register"],["W","Value to write to the register"],["_OA21_7W","Proxy"],["_OA2ENW","Proxy"],["_OA2MSKW","Proxy"]]});

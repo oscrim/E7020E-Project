@@ -1,0 +1,3 @@
+cargo:rustc-link-search=/home/carl/embedded system/e7020e_2019/target/thumbv7em-none-eabihf/release/build/stm32f4-17bb39ef340eb64f/out
+cargo:rerun-if-changed=src/stm32f413/device.x
+cargo:rerun-if-changed=build.rs

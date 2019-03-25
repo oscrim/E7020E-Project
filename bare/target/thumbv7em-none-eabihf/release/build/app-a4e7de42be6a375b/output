@@ -1,0 +1,2 @@
+cargo:rustc-link-search=/home/carl/embedded system/e7020e_2019/target/thumbv7em-none-eabihf/release/build/app-a4e7de42be6a375b/out
+cargo:rerun-if-changed=memory.x
