@@ -12,3 +12,7 @@ The choice of the components was made following our given budget and needs. We t
 
 We started to design the implementation of the essentials components, including the microcontroller, the voltage regulator system and the programmable pins. Then we added our own components. Finally we added some more backup pins and some testpoints to check is everything is working as intended.
 
+## Soldering
+
+It was our first time trying to solder SMD components. We had to use our second board because of some problems on the first one (probably the MCU that died). We started by soldering the power system and checking if it was working as intented, to be sure to not damage anything again. Then everytime we soldered something, we used the testpoints to check if the connection was well made. The hardest thing to solder was the bluetooth module and it involved the use of the "SMD Rework Station".
+At some point we had a problem with the usb connector. The print on our Kicad was reversed compared to the reality. It caused us to send 5V on the ground and vice-versa. So we had to use our backup pins to get the system working. 
