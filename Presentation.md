@@ -2,7 +2,7 @@
 
 ## Introduction
 
-We wanted to upgrade a toaster to be able to start it via a bluetooth module. The idea was that the mcu pilot a relay that will enable the start of the toaster. We also wanted to make it display information with the use of a screen. The information we wanted to display were the temperature (get by a sensor) or a message when the bread is ready. We also tried to implement a system of LEDs to see when the bluetooth module is working or the duration of the toasting.
+We wanted to upgrade a toaster to be able to start it via a bluetooth module. The idea was that the mcu pilot a relay that will enable the start of the toaster. We also wanted to make it display information with the use of a screen. The information we wanted to display were the temperature (get by a sensor) or a message when the bread is ready. We also tried to implement a system of LEDs to see when the bluetooth module or the toaster is working.
 
 ## Choice of the components
 
