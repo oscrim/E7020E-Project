@@ -1,0 +1,851 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "openocd",
+            "name": "hello 16Mhz (debug)",
+            "preLaunchTask": "cargo build --example hello",
+            "executable": "./target/thumbv7em-none-eabihf/debug/examples/hello",
+            "configFiles": [
+                "interface/stlink.cfg",
+                "target/stm32f4x.cfg"
+            ],
+            "postLaunchCommands": [
+                "monitor arm semihosting enable"
+            ],
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "openocd",
+            "name": "itm 16Mhz (debug)",
+            "preLaunchTask": "cargo build --example itm",
+            "executable": "./target/thumbv7em-none-eabihf/debug/examples/itm",
+            // uses local config files
+            "configFiles": [
+                "./stlink.cfg",
+                "./stm32f4x.cfg"
+            ],
+            "postLaunchCommands": [
+                // here the MCU remains in 16MHz, since we use our local .cfg files
+                "monitor reset init"
+            ],
+            "swoConfig": {
+                "enabled": true,
+                "cpuFrequency": 16000000,
+                "swoFrequency": 2000000,
+                "source": "probe",
+                "decoders": [
+                    {
+                        "type": "console",
+                        "label": "ITM",
+                        "port": 0
+                    }
+                ]
+            },
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "openocd",
+            "name": "itm 64Mhz (debug)",
+            "preLaunchTask": "cargo build --example itm",
+            "executable": "./target/thumbv7em-none-eabihf/debug/examples/itm",
+            "configFiles": [
+                "interface/stlink.cfg",
+                "target/stm32f4x.cfg"
+            ],
+            "postLaunchCommands": [
+                // sets the MCU to 64Mhz
+                "monitor reset init"
+            ],
+            "swoConfig": {
+                "enabled": true,
+                "cpuFrequency": 64000000,
+                "swoFrequency": 2000000,
+                "source": "probe",
+                "decoders": [
+                    {
+                        "type": "console",
+                        "label": "ITM",
+                        "port": 0
+                    }
+                ]
+            },
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "openocd",
+            "name": "panic 16Mhz (debug)",
+            "preLaunchTask": "cargo build --example panic",
+            "executable": "./target/thumbv7em-none-eabihf/debug/examples/panic",
+            "configFiles": [
+                "interface/stlink.cfg",
+                "target/stm32f4x.cfg"
+            ],
+            "postLaunchCommands": [
+                "b rust_begin_unwind",
+                "monitor arm semihosting enable"
+            ],
+            "swoConfig": {
+                "enabled": true,
+                "cpuFrequency": 16000000,
+                "swoFrequency": 2000000,
+                "source": "probe",
+                "decoders": [
+                    {
+                        "type": "console",
+                        "label": "ITM",
+                        "port": 0
+                    }
+                ]
+            },
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "openocd",
+            "name": "exception_itm 16Mhz (release)",
+            "preLaunchTask": "cargo build --example exception_itm --release",
+            "executable": "./target/thumbv7em-none-eabihf/release/examples/exception_itm",
+            "configFiles": [
+                "interface/stlink.cfg",
+                "target/stm32f4x.cfg"
+            ],
+            "swoConfig": {
+                "enabled": true,
+                "cpuFrequency": 16000000,
+                "swoFrequency": 2000000,
+                "source": "probe",
+                "decoders": [
+                    {
+                        "type": "console",
+                        "label": "ITM",
+                        "port": 0
+                    }
+                ]
+            },
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "openocd",
+            "name": "exception_itm_raw 16Mhz (debug)",
+            "preLaunchTask": "cargo build --example exception_itm_raw",
+            "executable": "./target/thumbv7em-none-eabihf/debug/examples/exception_itm_raw",
+            "configFiles": [
+                "interface/stlink.cfg",
+                "target/stm32f4x.cfg"
+            ],
+            "swoConfig": {
+                "enabled": true,
+                "cpuFrequency": 16000000,
+                "swoFrequency": 2000000,
+                "source": "probe",
+                "decoders": [
+                    {
+                        "type": "console",
+                        "label": "ITM",
+                        "port": 0
+                    }
+                ]
+            },
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "openocd",
+            "name": "crash (release)",
+            "preLaunchTask": "cargo build --example crash --release",
+            "executable": "./target/thumbv7em-none-eabihf/release/examples/crash",
+            "configFiles": [
+                "interface/stlink.cfg",
+                "target/stm32f4x.cfg"
+            ],
+            "postLaunchCommands": [
+                // sets a breakpoint at the HardFault (won't show in `vscode`, but `gdb` will break)
+                "b HardFault"
+            ],
+            "cwd": "${workspaceRoot}"
+        },
+        // launch configuration for using an external itm viewer
+        // $ tail -f /tmp/itm.log
+        // or, prior to launching the bebug session
+        // $ mkfifo /tmp/itm.log
+        // $ itmdump -f /tmp/itm.log -F
+        {
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "openocd",
+            "name": "itm 16Mhz /tmp/itm.log (debug)",
+            "preLaunchTask": "cargo build --example itm",
+            "executable": "./target/thumbv7em-none-eabihf/debug/examples/itm",
+            // uses local config files
+            "configFiles": [
+                "./stlink.cfg",
+                "./stm32f4x.cfg"
+            ],
+            "postLaunchCommands": [
+                // sets the core clock to 16000000 (see ./stm32f4x.cfg)
+                "monitor reset init",
+                // 16000000 must match the core clock frequency
+                "monitor tpiu config internal /tmp/itm.log uart off 16000000",
+                // enable ITM port 0
+                "monitor itm port 0 on"
+            ],
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "openocd",
+            "name": "device (debug)",
+            "preLaunchTask": "cargo build --example device --features pac",
+            "executable": "./target/thumbv7em-none-eabihf/debug/examples/device",
+            // uses local config files
+            "configFiles": [
+                "./stlink.cfg",
+                "./stm32f4x.cfg"
+            ],
+            "postLaunchCommands": [
+                "monitor arm semihosting enable"
+            ],
+            "swoConfig": {
+                "enabled": true,
+                "cpuFrequency": 16000000,
+                "swoFrequency": 2000000,
+                "source": "probe",
+                "decoders": [
+                    {
+                        "type": "console",
+                        "label": "ITM",
+                        "port": 0
+                    }
+                ]
+            },
+            "svdFile": "STM32F413.svd",
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "openocd",
+            "name": "serial (debug)",
+            "preLaunchTask": "cargo build --example serial",
+            "executable": "./target/thumbv7em-none-eabihf/debug/examples/serial",
+            // uses local config files
+            "configFiles": [
+                "./stlink.cfg",
+                "./stm32f4x.cfg"
+            ],
+            "swoConfig": {
+                "enabled": true,
+                "cpuFrequency": 16000000,
+                "swoFrequency": 2000000,
+                "source": "probe",
+                "decoders": [
+                    {
+                        "type": "console",
+                        "label": "ITM",
+                        "port": 0
+                    }
+                ]
+            },
+            "svdFile": "STM32F413.svd",
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "openocd",
+            "name": "rtfm_blinky (debug)",
+            "preLaunchTask": "cargo build --example rtfm_blinky",
+            "executable": "./target/thumbv7em-none-eabihf/debug/examples/rtfm_blinky",
+            // uses local config files
+            "configFiles": [
+                "./stlink.cfg",
+                "./stm32f4x.cfg"
+            ],
+            "swoConfig": {
+                "enabled": true,
+                "cpuFrequency": 16000000,
+                "swoFrequency": 2000000,
+                "source": "probe",
+                "decoders": [
+                    {
+                        "type": "console",
+                        "label": "ITM",
+                        "port": 0
+                    }
+                ]
+            },
+            "svdFile": "STM32F413.svd",
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "openocd",
+            "name": "bare0 (debug)",
+            "preLaunchTask": "cargo build --example bare0",
+            "executable": "./target/thumbv7em-none-eabihf/debug/examples/bare0",
+            "configFiles": [
+                "interface/stlink.cfg",
+                "target/stm32f4x.cfg"
+            ],
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "openocd",
+            "name": "bare1 (debug)",
+            "preLaunchTask": "cargo build --example bare1",
+            "executable": "./target/thumbv7em-none-eabihf/debug/examples/bare1",
+            "postLaunchCommands": [
+                "monitor arm semihosting enable"
+            ],
+            "swoConfig": {
+                "enabled": true,
+                "cpuFrequency": 16000000,
+                "swoFrequency": 2000000,
+                "source": "probe",
+                "decoders": [
+                    {
+                        "type": "console",
+                        "label": "ITM",
+                        "port": 0
+                    }
+                ]
+            },
+            "configFiles": [
+                "interface/stlink.cfg",
+                "target/stm32f4x.cfg"
+            ],
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "openocd",
+            "name": "bare1 (release)",
+            "preLaunchTask": "cargo build --example bare1 --release",
+            "executable": "./target/thumbv7em-none-eabihf/release/examples/bare1",
+            "postLaunchCommands": [
+                "monitor arm semihosting enable"
+            ],
+            "swoConfig": {
+                "enabled": true,
+                "cpuFrequency": 16000000,
+                "swoFrequency": 2000000,
+                "source": "probe",
+                "decoders": [
+                    {
+                        "type": "console",
+                        "label": "ITM",
+                        "port": 0
+                    }
+                ]
+            },
+            "configFiles": [
+                "interface/stlink.cfg",
+                "target/stm32f4x.cfg"
+            ],
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "openocd",
+            "name": "bare2 (debug)",
+            "preLaunchTask": "cargo build --example bare2",
+            "executable": "./target/thumbv7em-none-eabihf/debug/examples/bare2",
+            "postLaunchCommands": [
+                "monitor arm semihosting enable"
+            ],
+            "swoConfig": {
+                "enabled": true,
+                "cpuFrequency": 16000000,
+                "swoFrequency": 2000000,
+                "source": "probe",
+                "decoders": [
+                    {
+                        "type": "console",
+                        "label": "ITM",
+                        "port": 0
+                    }
+                ]
+            },
+            "configFiles": [
+                "interface/stlink.cfg",
+                "target/stm32f4x.cfg"
+            ],
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "openocd",
+            "name": "bare2 (release)",
+            "preLaunchTask": "cargo build --example bare2 --release",
+            "executable": "./target/thumbv7em-none-eabihf/release/examples/bare2",
+            "postLaunchCommands": [
+                "monitor arm semihosting enable"
+            ],
+            "swoConfig": {
+                "enabled": true,
+                "cpuFrequency": 16000000,
+                "swoFrequency": 2000000,
+                "source": "probe",
+                "decoders": [
+                    {
+                        "type": "console",
+                        "label": "ITM",
+                        "port": 0
+                    }
+                ]
+            },
+            "configFiles": [
+                "interface/stlink.cfg",
+                "target/stm32f4x.cfg"
+            ],
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "openocd",
+            "name": "bare3 (debug)",
+            "preLaunchTask": "cargo build --example bare3",
+            "executable": "./target/thumbv7em-none-eabihf/debug/examples/bare3",
+            "postLaunchCommands": [
+                "monitor arm semihosting enable"
+            ],
+            "configFiles": [
+                "interface/stlink.cfg",
+                "target/stm32f4x.cfg"
+            ],
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "openocd",
+            "name": "bare4 (debug)",
+            "preLaunchTask": "cargo build --example bare4",
+            "executable": "./target/thumbv7em-none-eabihf/debug/examples/bare4",
+            "postLaunchCommands": [
+                "monitor arm semihosting enable"
+            ],
+            "configFiles": [
+                "interface/stlink.cfg",
+                "target/stm32f4x.cfg"
+            ],
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "openocd",
+            "name": "bare5 (debug)",
+            "preLaunchTask": "cargo build --example bare5",
+            "executable": "./target/thumbv7em-none-eabihf/debug/examples/bare5",
+            "postLaunchCommands": [
+                "monitor arm semihosting enable"
+            ],
+            "configFiles": [
+                "interface/stlink.cfg",
+                "target/stm32f4x.cfg"
+            ],
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "openocd",
+            "name": "bare5 (release)",
+            "preLaunchTask": "cargo build --example bare5 --release",
+            "executable": "./target/thumbv7em-none-eabihf/release/examples/bare5",
+            "postLaunchCommands": [
+                "monitor arm semihosting enable"
+            ],
+            "configFiles": [
+                "interface/stlink.cfg",
+                "target/stm32f4x.cfg"
+            ],
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "openocd",
+            "name": "bare6 (debug) 16Mhz",
+            "preLaunchTask": "cargo build --example bare6",
+            "executable": "./target/thumbv7em-none-eabihf/debug/examples/bare6",
+            "configFiles": [
+                "interface/stlink.cfg",
+                "target/stm32f4x.cfg"
+            ],
+            "postLaunchCommands": [
+                "monitor reset halt"
+            ],
+            "swoConfig": {
+                "enabled": true,
+                "cpuFrequency": 16000000,
+                "swoFrequency": 2000000, // you may try 1000000 if not working
+                "source": "probe",
+                "decoders": [
+                    {
+                        "type": "console",
+                        "label": "ITM",
+                        "port": 0
+                    }
+                ]
+            },
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "openocd",
+            "name": "bare6 (debug) 64Mhz",
+            "preLaunchTask": "cargo build --example bare6",
+            "executable": "./target/thumbv7em-none-eabihf/debug/examples/bare6",
+            "configFiles": [
+                "interface/stlink.cfg",
+                "target/stm32f4x.cfg"
+            ],
+            "postLaunchCommands": [
+                // put the MCU in 64MHz
+                "monitor reset init"
+            ],
+            "swoConfig": {
+                "enabled": true,
+                "cpuFrequency": 64000000,
+                "swoFrequency": 2000000, // you may try 1000000 if not working
+                "source": "probe",
+                "decoders": [
+                    {
+                        "type": "console",
+                        "label": "ITM",
+                        "port": 0
+                    }
+                ]
+            },
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "openocd",
+            "name": "bare7 (debug) 16MHz",
+            "preLaunchTask": "cargo build --example bare7",
+            "executable": "./target/thumbv7em-none-eabihf/debug/examples/bare7",
+            // uses local config files
+            "configFiles": [
+                "./stlink.cfg",
+                "./stm32f4x.cfg"
+            ],
+            "postLaunchCommands": [
+                "monitor arm semihosting enable"
+            ],
+            "swoConfig": {
+                "enabled": true,
+                "cpuFrequency": 16000000,
+                "swoFrequency": 2000000,
+                "source": "probe",
+                "decoders": [
+                    {
+                        "type": "console",
+                        "label": "ITM",
+                        "port": 0
+                    }
+                ]
+            },
+            "svdFile": "STM32F413.svd",
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "openocd",
+            "name": "bare7 (debug) 64MHz",
+            "preLaunchTask": "cargo build --example bare7",
+            "executable": "./target/thumbv7em-none-eabihf/debug/examples/bare7",
+            "configFiles": [
+                "interface/stlink.cfg",
+                "target/stm32f4x.cfg"
+            ],
+            "postLaunchCommands": [
+                "monitor reset halt"
+            ],
+            "swoConfig": {
+                "enabled": true,
+                "cpuFrequency": 64000000,
+                "swoFrequency": 2000000,
+                "source": "probe",
+                "decoders": [
+                    {
+                        "type": "console",
+                        "label": "ITM",
+                        "port": 0
+                    }
+                ]
+            },
+            "svdFile": "STM32F413.svd",
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "openocd",
+            "name": "bare7 (debug) 84MHz",
+            "preLaunchTask": "cargo build --example bare7",
+            "executable": "./target/thumbv7em-none-eabihf/debug/examples/bare7",
+            // uses local config files
+            "configFiles": [
+                "interface/stlink.cfg",
+                "target/stm32f4x.cfg"
+            ],
+            "postLaunchCommands": [
+                "monitor reset halt"
+            ],
+            "swoConfig": {
+                "enabled": true,
+                "cpuFrequency": 84000000,
+                "swoFrequency": 2000000,
+                "source": "probe",
+                "decoders": [
+                    {
+                        "type": "console",
+                        "label": "ITM",
+                        "port": 0
+                    }
+                ]
+            },
+            "svdFile": "STM32F413.svd",
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "openocd",
+            "name": "bare8 (debug)",
+            "preLaunchTask": "cargo build --example bare8",
+            "executable": "./target/thumbv7em-none-eabihf/debug/examples/bare8",
+            "configFiles": [
+                "interface/stlink.cfg",
+                "target/stm32f4x.cfg"
+            ],
+            "swoConfig": {
+                "enabled": true,
+                "cpuFrequency": 16000000,
+                "swoFrequency": 2000000,
+                "source": "probe",
+                "decoders": [
+                    {
+                        "type": "console",
+                        "label": "ITM",
+                        "port": 0
+                    }
+                ]
+            },
+            "svdFile": "STM32F413.svd",
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "openocd",
+            "name": "bare9 (debug)",
+            "preLaunchTask": "cargo build --example bare9",
+            "executable": "./target/thumbv7em-none-eabihf/debug/examples/bare9",
+            "configFiles": [
+                "interface/stlink.cfg",
+                "target/stm32f4x.cfg"
+            ],
+            "swoConfig": {
+                "enabled": true,
+                "cpuFrequency": 16000000,
+                "swoFrequency": 2000000,
+                "source": "probe",
+                "decoders": [
+                    {
+                        "type": "console",
+                        "label": "ITM",
+                        "port": 0
+                    }
+                ]
+            },
+            "svdFile": "STM32F413.svd",
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "openocd",
+            "name": "bare9 (reselase)",
+            "preLaunchTask": "cargo build --example bare9 --release",
+            "executable": "./target/thumbv7em-none-eabihf/release/examples/bare9",
+            "configFiles": [
+                "interface/stlink.cfg",
+                "target/stm32f4x.cfg"
+            ],
+            "swoConfig": {
+                "enabled": true,
+                "cpuFrequency": 16000000,
+                "swoFrequency": 2000000,
+                "source": "probe",
+                "decoders": [
+                    {
+                        "type": "console",
+                        "label": "ITM",
+                        "port": 0
+                    }
+                ]
+            },
+            "svdFile": "STM32F413.svd",
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "openocd",
+            "name": "bare10 (release)",
+            "preLaunchTask": "cargo build --example bare10 --release",
+            "executable": "./target/thumbv7em-none-eabihf/release/examples/bare10",
+            "configFiles": [
+                "interface/stlink.cfg",
+                "target/stm32f4x.cfg"
+            ],
+            "swoConfig": {
+                "enabled": true,
+                "cpuFrequency": 16000000,
+                "swoFrequency": 2000000,
+                "source": "probe",
+                "decoders": [
+                    {
+                        "type": "console",
+                        "label": "ITM0",
+                        "port": 0
+                    },
+                    {
+                        "type": "console",
+                        "label": "ITM1",
+                        "port": 1
+                    }
+                ]
+            },
+            "svdFile": "STM32F413.svd",
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "openocd",
+            "name": "bare10 (debug)",
+            "preLaunchTask": "cargo build --example bare10",
+            "executable": "./target/thumbv7em-none-eabihf/debug/examples/bare10",
+            "configFiles": [
+                "interface/stlink.cfg",
+                "target/stm32f4x.cfg"
+            ],
+            "swoConfig": {
+                "enabled": true,
+                "cpuFrequency": 16000000,
+                "swoFrequency": 2000000,
+                "source": "probe",
+                "decoders": [
+                    {
+                        "type": "console",
+                        "label": "ITM0",
+                        "port": 0
+                    },
+                    // {
+                    //     "type": "console",
+                    //     "label": "ITM1",
+                    //     "port": 1
+                    // }
+                ]
+            },
+            "svdFile": "STM32F413.svd",
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "openocd",
+            "name": "marcus (release)",
+            "preLaunchTask": "cargo build --example marcus --release",
+            "executable": "./target/thumbv7em-none-eabihf/release/examples/marcus",
+            "configFiles": [
+                "interface/stlink.cfg",
+                "target/stm32f4x.cfg"
+            ],
+            "swoConfig": {
+                "enabled": true,
+                "cpuFrequency": 16000000,
+                "swoFrequency": 2000000,
+                "source": "probe",
+                "decoders": [
+                    {
+                        "type": "console",
+                        "label": "ITM0",
+                        "port": 0
+                    },
+                    {
+                        "type": "console",
+                        "label": "ITM1",
+                        "port": 1
+                    }
+                ]
+            },
+            "svdFile": "STM32F413.svd",
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "openocd",
+            "name": "equivalence (release)",
+            "preLaunchTask": "cargo build --example equivalence --release",
+            "executable": "./target/thumbv7em-none-eabihf/release/examples/equivalence",
+            "configFiles": [
+                "interface/stlink.cfg",
+                "target/stm32f4x.cfg"
+            ],
+            "swoConfig": {
+                "enabled": true,
+                "cpuFrequency": 16000000,
+                "swoFrequency": 2000000,
+                "source": "probe",
+                "decoders": [
+                    {
+                        "type": "console",
+                        "label": "ITM0",
+                        "port": 0
+                    },
+                    {
+                        "type": "console",
+                        "label": "ITM1",
+                        "port": 1
+                    }
+                ]
+            },
+            "svdFile": "STM32F413.svd",
+            "cwd": "${workspaceRoot}"
+        },
+    ]
+}

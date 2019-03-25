@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["ACCMODR","Value of the field"],["ADDHLDR","Value of the field"],["ADDSETR","Value of the field"],["BUSTURNR","Value of the field"],["DATASTR","Value of the field"],["R","Value read from the register"],["W","Value to write to the register"],["_ACCMODW","Proxy"],["_ADDHLDW","Proxy"],["_ADDSETW","Proxy"],["_BUSTURNW","Proxy"],["_DATASTW","Proxy"]]});

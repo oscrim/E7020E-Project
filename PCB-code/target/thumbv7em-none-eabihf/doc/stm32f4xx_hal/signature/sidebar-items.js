@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["FlashSize","Size of integrated flash"],["Uid","Uniqure Device ID register"],["VrefCal","ADC VREF calibration value is stored in at the factory"],["VtempCal110","A temperature reading taken at 110°C stored at the factory"],["VtempCal30","A temperature reading taken at 30°C stored at the factory"]]});
