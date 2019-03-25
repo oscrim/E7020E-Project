@@ -3,6 +3,14 @@
 # E-Toaster
 Design and build a PCB to upgrade a toaster. For the software part we will use RUST to program the MCU.
 
+
+# Authors 
+
+SCHRUB Valentin - Kicad/Soldering
+ROMARY Lucas - Kicad/Soldering
+FRISENSTAM Carl - Software implementation
+RIMSBY Oscar - Software implementation
+
 # Grades 
 
 **Grade 3**:
