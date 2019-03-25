@@ -3,6 +3,8 @@
 # E-Toaster
 design and build a PCB to upgrade a toaster. For the software part we will use RUST to program the MCU.
 
+# Grades 
+
 **Grade 3**:
 Implement LED, push button, temperature sensor and LCD screen.
 
