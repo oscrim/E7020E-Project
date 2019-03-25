@@ -6,10 +6,13 @@ Design and build a PCB to upgrade a toaster. For the software part we will use R
 
 # Authors 
 
-SCHRUB Valentin - Kicad/Soldering
-ROMARY Lucas - Kicad/Soldering
-FRISENSTAM Carl - Software implementation
-RIMSBY Oscar - Software implementation
+SCHRUB Valentin - Kicad/Soldering.
+
+ROMARY Lucas - Kicad/Soldering.
+
+FRISENSTAM Carl - Software implementation.
+
+RIMSBY Oscar - Software implementation.
 
 # Grades 
 
