@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["OA11_7R","Value of the field"],["OA18_9R","Value of the field"],["OA1ENR","Value of the field"],["OA1MODER","Value of the field"],["OA1R","Value of the field"],["R","Value read from the register"],["W","Value to write to the register"],["_OA11_7W","Proxy"],["_OA18_9W","Proxy"],["_OA1ENW","Proxy"],["_OA1MODEW","Proxy"],["_OA1W","Proxy"]]});

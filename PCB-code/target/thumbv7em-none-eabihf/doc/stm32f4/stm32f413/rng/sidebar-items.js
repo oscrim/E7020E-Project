@@ -1,1 +1,0 @@
-initSidebarItems({"mod":[["cr","control register"],["dr","data register"],["sr","status register"]],"struct":[["CR","control register"],["DR","data register"],["RegisterBlock","Register block"],["SR","status register"]]});

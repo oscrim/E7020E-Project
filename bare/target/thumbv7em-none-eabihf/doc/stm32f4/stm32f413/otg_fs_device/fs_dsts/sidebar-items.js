@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["DEVLNSTSR","Value of the field"],["EERRR","Value of the field"],["ENUMSPDR","Value of the field"],["FNSOFR","Value of the field"],["R","Value read from the register"],["SUSPSTSR","Value of the field"]]});

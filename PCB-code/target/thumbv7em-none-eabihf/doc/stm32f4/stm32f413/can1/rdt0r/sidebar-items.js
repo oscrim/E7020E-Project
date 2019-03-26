@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["DLCR","Value of the field"],["FMIR","Value of the field"],["R","Value read from the register"],["TIMER","Value of the field"]]});

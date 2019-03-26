@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["UIER","Possible values of the field `UIE`"],["UIEW","Values that can be written to the field `UIE`"]],"struct":[["R","Value read from the register"],["UDER","Value of the field"],["W","Value to write to the register"],["_UDEW","Proxy"],["_UIEW","Proxy"]]});

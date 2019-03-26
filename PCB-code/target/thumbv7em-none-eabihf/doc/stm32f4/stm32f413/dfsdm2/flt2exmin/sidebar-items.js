@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["EXMINCHR","Value of the field"],["EXMINR","Value of the field"],["R","Value read from the register"]]});
