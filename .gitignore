@@ -1,0 +1,5 @@
+# These folders will be ignored
+bare/target/doc/
+bare/target/thumbv7em-none-eabihf/doc/
+PCB-code/target/doc/
+PCB-code/target/thumbv7em-none-eabihf/doc/
