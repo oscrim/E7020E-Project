@@ -34,3 +34,7 @@ It was however not possible to do this kind of mathematics on the PCB since we a
 ![Est](https://raw.githubusercontent.com/oscrim/E7020E-Project/master/pictures/Estimate.png)
 
 This is not perfect but it is close enough for the temperatures we have, we also decided that since some of the calculations will have too many decimals and we cant easily change the number of decimals we will round the temperatures to the closest integer
+
+## Use of the relay
+
+We wanted to use the relay to start the toaster when we want. For reasons of time and safety, we use the relay to power a LED with a 12V power supply. Except for the safety part, the method to control 12V or 230V is the same. We use a GPIO that control a transistor which will activate the relay.
