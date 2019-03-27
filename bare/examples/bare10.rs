@@ -167,7 +167,8 @@ const APP: () = {
 //
 //    What information would you need?
 //
-//    ** your answer here **
+//    We need to know the size of the USART-message, how often we can receive a 
+//      message and how long it takes to process a message
 //    
 //    Commit your answers (bare10_2)
 //
