@@ -166,16 +166,18 @@ const APP: () = {
 //
 //    What did you receive, and what was the output of the ITM trace.
 //
-//    ** your answer here **
+//    bare9
+//    goto sleep
+//    woken..
 //
 //    Did you experience any over-run errors?
 //
-//    ** your answer here **
+//    Yes
 //
 //    Why does it behave differently than in release mode?
 //    Recall how the execution overhead changed with optimization level.
 //
-//    ** your answer here **
+//    The overhead gets too large because the enqueue function before the USART is able to terminate
 //
 //    Commit your answers (bare9_2)
 //

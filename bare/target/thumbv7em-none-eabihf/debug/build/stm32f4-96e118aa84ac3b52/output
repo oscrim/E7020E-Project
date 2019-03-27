@@ -1,0 +1,3 @@
+cargo:rustc-link-search=/home/oscar/Documents/E7020E-Project/bare/target/thumbv7em-none-eabihf/debug/build/stm32f4-96e118aa84ac3b52/out
+cargo:rerun-if-changed=src/stm32f413/device.x
+cargo:rerun-if-changed=build.rs
