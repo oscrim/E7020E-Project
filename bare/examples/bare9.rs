@@ -136,15 +136,23 @@ const APP: () = {
 //
 //    What did you receive, and what was the output of the ITM trace.
 //
-//    ** your answer here **
+//    goto sleep
+//    woken..
+//    data 98
+//    data 99
+//    data 100
+//    data 13
+//    data 10
+//    goto sleep
 //
 //    Did you experience any over-run errors?
 //
-//    ** your answer here **
+//    No
 //
 //    Why does it behave differently than bare7/bare8?
 //
-//    ** your answer here **
+//    Instead of just running through and reading the input all the time it goes to sleep until it is interrupted
+//      where it will keep printing out what it recieved until it once again goes to sleep
 //
 //    Commit your answers (bare9_1)
 //
