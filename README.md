@@ -29,7 +29,8 @@ Build with :
 * 2: red LEDs
 * 1: green LED
 * 2: pushbuttons
-* 1: transistor
+* 2: transistors
+* 1: relay 5V-230V
 
 ## Capacitors
 * 2: 4.7u
@@ -46,7 +47,7 @@ Build with :
 * 1:   5k
 * 2:   470
 * 4:   3.3k
-* 1:   1k
+* 2:   1k
 * 1:   820
 * 1:   160
 
