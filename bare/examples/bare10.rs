@@ -145,15 +145,15 @@ const APP: () = {
 //
 //    Did you loose any data (was the data correctly echoed)?
 //
-//    ** your answer here **
+//    No
 //
 //    Was the data correctly traced over the ITM?
 //
-//    ** your answer here **
+//    Yes, most of the time at least. Rarely it would 
 //
 //    Why did you loose trace information?
 //
-//    ** your asnwer here **
+//    Rarely
 //
 //    Commit your answers (bare10_1)
 //

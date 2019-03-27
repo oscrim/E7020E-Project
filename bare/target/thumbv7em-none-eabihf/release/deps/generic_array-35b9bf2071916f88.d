@@ -1,0 +1,11 @@
+/home/oscar/Documents/E7020E-Project/bare/target/thumbv7em-none-eabihf/release/deps/libgeneric_array-35b9bf2071916f88.rlib: /home/oscar/.cargo/registry/src/github.com-1ecc6299db9ec823/generic-array-0.11.1/src/lib.rs /home/oscar/.cargo/registry/src/github.com-1ecc6299db9ec823/generic-array-0.11.1/src/hex.rs /home/oscar/.cargo/registry/src/github.com-1ecc6299db9ec823/generic-array-0.11.1/src/impls.rs /home/oscar/.cargo/registry/src/github.com-1ecc6299db9ec823/generic-array-0.11.1/src/arr.rs /home/oscar/.cargo/registry/src/github.com-1ecc6299db9ec823/generic-array-0.11.1/src/iter.rs /home/oscar/.cargo/registry/src/github.com-1ecc6299db9ec823/generic-array-0.11.1/src/sequence.rs /home/oscar/.cargo/registry/src/github.com-1ecc6299db9ec823/generic-array-0.11.1/src/functional.rs
+
+/home/oscar/Documents/E7020E-Project/bare/target/thumbv7em-none-eabihf/release/deps/generic_array-35b9bf2071916f88.d: /home/oscar/.cargo/registry/src/github.com-1ecc6299db9ec823/generic-array-0.11.1/src/lib.rs /home/oscar/.cargo/registry/src/github.com-1ecc6299db9ec823/generic-array-0.11.1/src/hex.rs /home/oscar/.cargo/registry/src/github.com-1ecc6299db9ec823/generic-array-0.11.1/src/impls.rs /home/oscar/.cargo/registry/src/github.com-1ecc6299db9ec823/generic-array-0.11.1/src/arr.rs /home/oscar/.cargo/registry/src/github.com-1ecc6299db9ec823/generic-array-0.11.1/src/iter.rs /home/oscar/.cargo/registry/src/github.com-1ecc6299db9ec823/generic-array-0.11.1/src/sequence.rs /home/oscar/.cargo/registry/src/github.com-1ecc6299db9ec823/generic-array-0.11.1/src/functional.rs
+
+/home/oscar/.cargo/registry/src/github.com-1ecc6299db9ec823/generic-array-0.11.1/src/lib.rs:
+/home/oscar/.cargo/registry/src/github.com-1ecc6299db9ec823/generic-array-0.11.1/src/hex.rs:
+/home/oscar/.cargo/registry/src/github.com-1ecc6299db9ec823/generic-array-0.11.1/src/impls.rs:
+/home/oscar/.cargo/registry/src/github.com-1ecc6299db9ec823/generic-array-0.11.1/src/arr.rs:
+/home/oscar/.cargo/registry/src/github.com-1ecc6299db9ec823/generic-array-0.11.1/src/iter.rs:
+/home/oscar/.cargo/registry/src/github.com-1ecc6299db9ec823/generic-array-0.11.1/src/sequence.rs:
+/home/oscar/.cargo/registry/src/github.com-1ecc6299db9ec823/generic-array-0.11.1/src/functional.rs:

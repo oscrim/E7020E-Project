@@ -1,0 +1,1 @@
+{"rustc":10365375145308227832,"features":"[\"cortex-m-rtfm\", \"hal\", \"rtfm\", \"stm32f4xx-hal\"]","target":10429514197457385088,"profile":14262939749342047399,"path":4820456077575211582,"deps":[],"local":[{"MtimeBased":[[1553706244,59694384],".fingerprint/app-243ea2254d57b175/dep-build-script-build_script_build-243ea2254d57b175"]}],"rustflags":[],"edition":"Edition2018"}
