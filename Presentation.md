@@ -38,3 +38,11 @@ This is not perfect but it is close enough for the temperatures we have, we also
 ## Use of the relay
 
 We wanted to use the relay to start the toaster when we want. For reasons of time and safety, we use the relay to power a LED with a 12V power supply. Except for the safety part, the method to control 12V or 230V is the same. We use a GPIO that control a transistor which will activate the relay.
+
+## LCD
+
+We decided to implement a lcd display that would show off some relevant information. We didnt have time to implement all the information to display however we did set up the screen and gathered relevant data so all you would have to do is print the correct letters. The screen operates over serial peripheral interface (SPI). This is done by just sending all the data to a mosi pin.
+
+## Pushbutton
+
+Lastly we decided to implement a pushbutton. This button, as it funcions currently, simply starts the simulated breadroasting. So when you click the button you get a loading screen basically which is supposed to sumbolize the breadroasting process. This could function as the start and stop button in a fully implemented version.
