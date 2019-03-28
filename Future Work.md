@@ -15,3 +15,7 @@ Display meaningful informations. Use the push buttons to change the informations
 ## Software
 
 Refactor the code, improve structure and readability. 
+
+## PCB
+
+Correct the PCB.
