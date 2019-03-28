@@ -1,0 +1,2 @@
+cargo:rustc-link-search=/home/oscar/Documents/E7020E-Project/bare/target/thumbv7em-none-eabihf/release/build/app-31457186e5be16d9/out
+cargo:rerun-if-changed=memory.x

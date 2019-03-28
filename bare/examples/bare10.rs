@@ -15,9 +15,9 @@ extern crate stm32f4xx_hal as hal;
 use crate::hal::prelude::*;
 use crate::hal::serial::{config::Config, Event, Rx, Serial, Tx};
 use hal::stm32::ITM;
-
+use hal::gpio::{PushPull, Output, gpioa::PA5};
 use nb::block;
-use rtfm::app;
+use rtfm::{app, Instant};
 
 // Our error type
 #[derive(Debug)]
@@ -33,6 +33,9 @@ const APP: () = {
     static mut TX: Tx<hal::stm32::USART2> = ();
     static mut RX: Rx<hal::stm32::USART2> = ();
     static mut ITM: ITM = ();
+    static mut FREQ: u32 = 1;
+    static mut PA5: PA5<Output<PushPull>> = ();
+    static mut is_on: bool = true;
 
     // init runs in an interrupt free section>
     #[init]
@@ -49,6 +52,7 @@ const APP: () = {
 
         let tx = gpioa.pa2.into_alternate_af7();
         let rx = gpioa.pa3.into_alternate_af7(); // try comment out
+        let pa5_o = gpioa.pa5.into_push_pull_output();
 
         let mut serial = Serial::usart2(
             device.USART2,
@@ -67,6 +71,8 @@ const APP: () = {
         TX = tx;
         RX = rx;
 
+        PA5 = pa5_o;
+
         // For debugging
         ITM = core.ITM;
     }
@@ -77,6 +83,93 @@ const APP: () = {
         loop {
             asm::wfi();
         }
+    }
+
+    #[task(priority = 1, resources = [ITM, is_on], spawn = [on, off, setFreq])]
+    fn interpreter(byte: u8) {
+        let stim = &mut resources.ITM.stim[0];
+        static mut B: [u8; 10] = [0u8; 10];
+        static mut i: usize = 0;
+
+        B[*i] = byte;
+        *i = *i + 1;
+
+        if (B[0] == 'o' as u8) && (B[1] == 'n' as u8) && (B[2] == 10){
+            resources.is_on.lock(|is_on| {
+            *is_on = true;
+            });
+            spawn.on().unwrap();
+            iprintln!(stim, "On {}");
+            B.iter_mut().for_each(|x| *x = 0);
+            *i = 0;
+        }
+        else if (B[0] == 'o' as u8) && (B[1] == 'f' as u8) && (B[2] == 'f' as u8) && (B[3] == 10){
+            spawn.off().unwrap();
+            iprintln!(stim, "Off {}");
+            B.iter_mut().for_each(|x| *x = 0);
+            *i = 0;
+        }
+        else if (B[0] == 's' as u8) && (B[1] == 'e' as u8) && (B[2] == 't' as u8){
+            let mut value: u32 = 0;        
+            if B.contains(&(' ' as u8)) && (B.contains(&13) || B.contains(&10)) {
+                for n in &B[4..*i-1] {
+                    if n.is_ascii_digit() {
+                        value = value * 10;
+                        value = value + (u32::from(*n-48));
+                    }
+                }
+                if value != 0 {
+                    iprintln!(stim, "Set {}", value);
+                    spawn.setFreq(value).unwrap();
+                    B.iter_mut().for_each(|x| *x = 0);
+                    *i = 0;
+                }
+                
+            }
+        }
+        else if (B.contains(&13) || B.contains(&10)){
+            B.iter_mut().for_each(|x| *x = 0);
+            *i = 0;
+        }
+
+
+    }
+
+    #[task(priority = 4, schedule = [blinkOff], resources = [PA5, FREQ, is_on], spawn = [blinkOff])]
+    fn on(){
+        let mut time: u32 = 0;
+        resources.FREQ.lock(|FREQ| {
+            time = *FREQ;
+        });
+        if *resources.is_on{
+            resources.PA5.set_high();
+            schedule.blinkOff(Instant::now() + (8_000_000/time).cycles()).unwrap();
+        }        
+    }
+    
+    #[task(priority = 4, schedule = [on], resources = [PA5, FREQ, is_on], spawn = [on])]
+    fn blinkOff(){
+        resources.PA5.set_low();
+        if *resources.is_on{
+            let mut time: u32 = 0;
+            resources.FREQ.lock(|FREQ| {
+                time = *FREQ;
+            });
+            schedule.on(Instant::now() + (8_000_000/time).cycles()).unwrap();
+        }
+    }
+
+    #[task(priority = 4, schedule = [blinkOff], resources = [is_on], spawn = [blinkOff])]
+    fn off(){
+        *resources.is_on = false;
+        schedule.blinkOff(Instant::now()).unwrap();
+    }
+
+    #[task(priority = 2, resources = [FREQ])]
+    fn setFreq(freq: u32){
+        resources.FREQ.lock(|FREQ| {
+            *FREQ = freq;
+        });
     }
 
     #[task(priority = 1, resources = [ITM])]
@@ -104,7 +197,7 @@ const APP: () = {
 
     }
 
-    #[interrupt(priority = 3, resources = [RX], spawn = [trace_data, trace_error, echo])]
+    #[interrupt(priority = 3, resources = [RX], spawn = [trace_data, trace_error, echo, interpreter])]
     fn USART2() {
         let rx = resources.RX;
 
@@ -126,6 +219,7 @@ const APP: () = {
     extern "C" {
         fn EXTI0();
         fn EXTI1();
+        fn EXTI2();
     }
 };
 

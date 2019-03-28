@@ -126,9 +126,9 @@ const APP: () = {
                 iprintln!(stim, "click!");
                 let sample = adc.convert(&pb0_a, SampleTime::Cycles_480);
                 let millivolts = adc.sample_to_millivolts(sample);
-                iprintln!(stim, "millivolts: {:?}", millivolts);
+                //iprintln!(stim, "millivolts: {:?}", millivolts);
                 let temp = -0.1805*(millivolts as f64) + 186.88;
-                iprintln!(stim, "temp before rounding: {:?}", temp);
+                //iprintln!(stim, "temp before rounding: {:?}", temp);
                 let temp_rounded: i32;
                 if temp > 0.0 {
                     temp_rounded = (temp + 0.5) as i32;
@@ -136,7 +136,7 @@ const APP: () = {
                 else {
                     temp_rounded = (temp - 0.5) as i32;
                 }
-                iprintln!(stim, "temp after rounding: {:?}", temp_rounded);
+                iprintln!(stim, "temperature : {:?}", temp_rounded);
             }
         }
         ITM = core.ITM;

@@ -1,1 +1,1 @@
-/home/carl/embedded\ system/e7020e_2019/target/thumbv7em-none-eabihf/debug/examples/spiTest: /home/carl/embedded\ system/e7020e_2019/build.rs /home/carl/embedded\ system/e7020e_2019/examples/spiTest.rs /home/carl/embedded\ system/e7020e_2019/memory.x memory.x
+/home/oscar/Documents/E7020E-Project/bare/target/thumbv7em-none-eabihf/debug/examples/spiTest: /home/oscar/Documents/E7020E-Project/bare/build.rs /home/oscar/Documents/E7020E-Project/bare/examples/spiTest.rs /home/oscar/Documents/E7020E-Project/bare/memory.x memory.x
