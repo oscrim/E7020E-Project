@@ -11,3 +11,7 @@ We're gonna finalize the bluetooth function. We will read the uart communication
 ## Screen
 
 Display meaningful informations. Use the push buttons to change the informations
+
+## Software
+
+Refactor the code, improve structure and readability. 
