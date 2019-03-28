@@ -1,0 +1,10 @@
+/home/oscar/Documents/git_repo/e7020e_2019/target/thumbv7em-none-eabihf/debug/deps/libcortex_m_semihosting-244ca59487b61784.rlib: /home/oscar/.cargo/registry/src/github.com-1ecc6299db9ec823/cortex-m-semihosting-0.3.2/src/lib.rs /home/oscar/.cargo/registry/src/github.com-1ecc6299db9ec823/cortex-m-semihosting-0.3.2/src/macros.rs /home/oscar/.cargo/registry/src/github.com-1ecc6299db9ec823/cortex-m-semihosting-0.3.2/src/debug.rs /home/oscar/.cargo/registry/src/github.com-1ecc6299db9ec823/cortex-m-semihosting-0.3.2/src/export.rs /home/oscar/.cargo/registry/src/github.com-1ecc6299db9ec823/cortex-m-semihosting-0.3.2/src/hio.rs /home/oscar/.cargo/registry/src/github.com-1ecc6299db9ec823/cortex-m-semihosting-0.3.2/src/nr.rs
+
+/home/oscar/Documents/git_repo/e7020e_2019/target/thumbv7em-none-eabihf/debug/deps/cortex_m_semihosting-244ca59487b61784.d: /home/oscar/.cargo/registry/src/github.com-1ecc6299db9ec823/cortex-m-semihosting-0.3.2/src/lib.rs /home/oscar/.cargo/registry/src/github.com-1ecc6299db9ec823/cortex-m-semihosting-0.3.2/src/macros.rs /home/oscar/.cargo/registry/src/github.com-1ecc6299db9ec823/cortex-m-semihosting-0.3.2/src/debug.rs /home/oscar/.cargo/registry/src/github.com-1ecc6299db9ec823/cortex-m-semihosting-0.3.2/src/export.rs /home/oscar/.cargo/registry/src/github.com-1ecc6299db9ec823/cortex-m-semihosting-0.3.2/src/hio.rs /home/oscar/.cargo/registry/src/github.com-1ecc6299db9ec823/cortex-m-semihosting-0.3.2/src/nr.rs
+
+/home/oscar/.cargo/registry/src/github.com-1ecc6299db9ec823/cortex-m-semihosting-0.3.2/src/lib.rs:
+/home/oscar/.cargo/registry/src/github.com-1ecc6299db9ec823/cortex-m-semihosting-0.3.2/src/macros.rs:
+/home/oscar/.cargo/registry/src/github.com-1ecc6299db9ec823/cortex-m-semihosting-0.3.2/src/debug.rs:
+/home/oscar/.cargo/registry/src/github.com-1ecc6299db9ec823/cortex-m-semihosting-0.3.2/src/export.rs:
+/home/oscar/.cargo/registry/src/github.com-1ecc6299db9ec823/cortex-m-semihosting-0.3.2/src/hio.rs:
+/home/oscar/.cargo/registry/src/github.com-1ecc6299db9ec823/cortex-m-semihosting-0.3.2/src/nr.rs:

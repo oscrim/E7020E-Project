@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["DLCR","Value of the field"],["R","Value read from the register"],["TGTR","Value of the field"],["TIMER","Value of the field"],["W","Value to write to the register"],["_DLCW","Proxy"],["_TGTW","Proxy"],["_TIMEW","Proxy"]]});

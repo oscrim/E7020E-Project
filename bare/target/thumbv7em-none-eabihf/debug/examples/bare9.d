@@ -1,0 +1,1 @@
+/home/oscar/Documents/E7020E-Project/bare/target/thumbv7em-none-eabihf/debug/examples/bare9: /home/oscar/Documents/E7020E-Project/bare/build.rs /home/oscar/Documents/E7020E-Project/bare/examples/bare9.rs /home/oscar/Documents/E7020E-Project/bare/memory.x memory.x

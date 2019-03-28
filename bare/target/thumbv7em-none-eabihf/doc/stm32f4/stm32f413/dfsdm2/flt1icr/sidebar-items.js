@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["CLRCKABFR","Value of the field"],["CLRJOVRFR","Value of the field"],["CLRROVRFR","Value of the field"],["CLRSCDFR","Value of the field"],["R","Value read from the register"],["W","Value to write to the register"],["_CLRCKABFW","Proxy"],["_CLRJOVRFW","Proxy"],["_CLRROVRFW","Proxy"],["_CLRSCDFW","Proxy"]]});

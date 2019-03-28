@@ -1,0 +1,1 @@
+/home/oscar/Documents/E7020E/E7020E-Project/PCB-code/target/thumbv7em-none-eabihf/debug/app: /home/oscar/Documents/E7020E/E7020E-Project/PCB-code/build.rs /home/oscar/Documents/E7020E/E7020E-Project/PCB-code/memory.x /home/oscar/Documents/E7020E/E7020E-Project/PCB-code/src/main.rs memory.x

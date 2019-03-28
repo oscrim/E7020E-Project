@@ -145,15 +145,15 @@ const APP: () = {
 //
 //    Did you loose any data (was the data correctly echoed)?
 //
-//    ** your answer here **
+//    No
 //
 //    Was the data correctly traced over the ITM?
 //
-//    ** your answer here **
+//    Yes, most of the time at least. Rarely it would 
 //
 //    Why did you loose trace information?
 //
-//    ** your asnwer here **
+//    Rarely
 //
 //    Commit your answers (bare10_1)
 //
@@ -167,7 +167,8 @@ const APP: () = {
 //
 //    What information would you need?
 //
-//    ** your answer here **
+//    We need to know the size of the USART-message, how often we can receive a 
+//      message and how long it takes to process a message
 //    
 //    Commit your answers (bare10_2)
 //

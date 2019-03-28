@@ -1,0 +1,1 @@
+{"rustc":5938891321215069548,"features":"[]","target":12396668694791092601,"profile":18223190099563596002,"path":9840594824437276617,"deps":[["generic-array v0.11.1","generic_array",10435439861577509195],["hash32 v0.1.0","hash32",4333833076407935054]],"local":[{"Precalculated":"0.4.2"}],"rustflags":["-C","link-arg=-Tlink.x"],"edition":"Edition2015"}

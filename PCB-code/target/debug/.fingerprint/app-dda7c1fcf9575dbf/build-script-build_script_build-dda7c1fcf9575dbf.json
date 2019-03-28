@@ -1,0 +1,1 @@
+{"rustc":10365375145308227832,"features":"[\"hal\", \"stm32f4\", \"stm32f4xx-hal\"]","target":10429514197457385088,"profile":18332037233414932121,"path":4820456077575211582,"deps":[],"local":[{"MtimeBased":[[1552645197,235321024],".fingerprint/app-dda7c1fcf9575dbf/dep-build-script-build_script_build-dda7c1fcf9575dbf"]}],"rustflags":[],"edition":"Edition2018"}

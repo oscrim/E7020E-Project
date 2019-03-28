@@ -1,0 +1,1 @@
+{"rustc":10365375145308227832,"features":"[]","target":2548174077260722958,"profile":9195534457131069629,"path":12619928574884705647,"deps":[["vcell v0.1.0","vcell",7684721503650559278]],"local":[{"Precalculated":"0.2.0"}],"rustflags":["-C","link-arg=-Tlink.x"],"edition":"Edition2015"}

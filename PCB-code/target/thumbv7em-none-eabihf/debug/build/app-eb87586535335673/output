@@ -1,0 +1,2 @@
+cargo:rustc-link-search=/home/oscar/Documents/git_repo/e7020e_2019/target/thumbv7em-none-eabihf/debug/build/app-eb87586535335673/out
+cargo:rerun-if-changed=memory.x

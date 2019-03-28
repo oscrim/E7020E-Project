@@ -20,4 +20,21 @@ At some point we had a problem with the usb connector. The print on our Kicad wa
 
 ## Use of the bluetooth module
 
-We were able to communicate with the bluetooth module using a serial communication with a computer. we could modify some parameters of it or simply send data to the MCU with an UART connection. We also implemented two LEDs, one green and one red. The green LED tells us if the module wait for a connection, is connected or is in control mode. The red LED lights up everytime we send a data to the MCU.
+We were able to communicate with the bluetooth module using a serial communication with a computer, only on Windows however. we could modify some parameters of it or simply send data to the MCU with an UART connection. We also implemented two LEDs, one green and one red. The green LED tells us if the module wait for a connection, is connected or is in control mode. The red LED lights up everytime we send a data to the MCU.
+
+
+## Temperature sensor and ADC
+
+Communicating with the temperature sensor was no problem and was done easily, what was more of a challenge was the ADC as the crate used didn't have the ADC component, this however turned out to be due to an outdated crate and updating it solved the issue. In the datasheet for the temperature sensor there was a formula for the conversion between millivolts and degrees Celcius
+
+![Eq](https://raw.githubusercontent.com/oscrim/E7020E-Project/master/pictures/Millivolt2Celcius.png)
+
+It was however not possible to do this kind of mathematics on the PCB since we are unable to use the standard libraries, therefore we had to approximate the conversion using a linear model instead which gave us.
+
+![Est](https://raw.githubusercontent.com/oscrim/E7020E-Project/master/pictures/Estimate.png)
+
+This is not perfect but it is close enough for the temperatures we have, we also decided that since some of the calculations will have too many decimals and we cant easily change the number of decimals we will round the temperatures to the closest integer
+
+## Use of the relay
+
+We wanted to use the relay to start the toaster when we want. For reasons of time and safety, we use the relay to power a LED with a 12V power supply. Except for the safety part, the method to control 12V or 230V is the same. We use a GPIO that control a transistor which will activate the relay.
