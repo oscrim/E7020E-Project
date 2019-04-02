@@ -33,12 +33,12 @@ const APP: () = {
     static mut TX: Tx<hal::stm32::USART2> = ();
     static mut RX: Rx<hal::stm32::USART2> = ();
     static mut ITM: ITM = ();
-    static mut FREQ: u32 = 1;
+    static mut TIMEOFFSET: u32 = 1;
     static mut PA5: PA5<Output<PushPull>> = ();
     static mut is_on: bool = true;
 
     // init runs in an interrupt free section>
-    #[init]
+    #[init(schedule = [on])]
     fn init() {
         let stim = &mut core.ITM.stim[0];
         iprintln!(stim, "bare10");
@@ -52,7 +52,9 @@ const APP: () = {
 
         let tx = gpioa.pa2.into_alternate_af7();
         let rx = gpioa.pa3.into_alternate_af7(); // try comment out
-        let pa5_o = gpioa.pa5.into_push_pull_output();
+        let pa5out = gpioa.pa5.into_push_pull_output();
+        
+
 
         let mut serial = Serial::usart2(
             device.USART2,
@@ -71,7 +73,7 @@ const APP: () = {
         TX = tx;
         RX = rx;
 
-        PA5 = pa5_o;
+        PA5 = pa5out;
 
         // For debugging
         ITM = core.ITM;
@@ -85,31 +87,33 @@ const APP: () = {
         }
     }
 
-    #[task(priority = 1, resources = [ITM, is_on], spawn = [on, off, setFreq])]
-    fn interpreter(byte: u8) {
-        let stim = &mut resources.ITM.stim[0];
+    #[task(priority = 1, capacity = 10, resources = [is_on, ITM], spawn = [on, off, setFreq])]
+    fn interpreter(byte: u8){
         static mut B: [u8; 10] = [0u8; 10];
         static mut i: usize = 0;
-
+        let stim = &mut resources.ITM.stim[0];
+        
         B[*i] = byte;
         *i = *i + 1;
-
-        if (B[0] == 'o' as u8) && (B[1] == 'n' as u8) && (B[2] == 10){
+        //ON
+        if (B[0] == 111) && (B[1] == 110) && (B[2] == 13){
             resources.is_on.lock(|is_on| {
             *is_on = true;
             });
             spawn.on().unwrap();
-            iprintln!(stim, "On {}");
+            iprintln!(stim, "On");
             B.iter_mut().for_each(|x| *x = 0);
             *i = 0;
         }
-        else if (B[0] == 'o' as u8) && (B[1] == 'f' as u8) && (B[2] == 'f' as u8) && (B[3] == 10){
+        //OFF
+        else if (B[0] == 111) && (B[1] == 102) && (B[2] == 102) && (B[3] == 13){
             spawn.off().unwrap();
-            iprintln!(stim, "Off {}");
+            iprintln!(stim, "Off");
             B.iter_mut().for_each(|x| *x = 0);
             *i = 0;
         }
-        else if (B[0] == 's' as u8) && (B[1] == 'e' as u8) && (B[2] == 't' as u8){
+        // SET
+        else if (B[0] == 115) && (B[1] == 101) && (B[2] == 116) {
             let mut value: u32 = 0;        
             if B.contains(&(' ' as u8)) && (B.contains(&13) || B.contains(&10)) {
                 for n in &B[4..*i-1] {
@@ -127,52 +131,50 @@ const APP: () = {
                 
             }
         }
-        else if (B.contains(&13) || B.contains(&10)){
+        else if (B.contains(&13) && B.contains(&10)){
+            //Resets B!
+            //iprintln!(stim, "Reset");
             B.iter_mut().for_each(|x| *x = 0);
             *i = 0;
         }
-
-
     }
 
-    #[task(priority = 4, schedule = [blinkOff], resources = [PA5, FREQ, is_on], spawn = [blinkOff])]
+    #[task(priority = 4, schedule = [on], resources = [PA5, TIMEOFFSET, is_on], spawn = [on])]
     fn on(){
+        static mut light_toggle: bool = true;
         let mut time: u32 = 0;
-        resources.FREQ.lock(|FREQ| {
-            time = *FREQ;
+        resources.TIMEOFFSET.lock(|timeoffset| {
+            time = *timeoffset;
         });
         if *resources.is_on{
-            resources.PA5.set_high();
-            schedule.blinkOff(Instant::now() + (8_000_000/time).cycles()).unwrap();
+            if *light_toggle{
+                resources.PA5.set_high();
+            }
+            else{
+                resources.PA5.set_low();
+            }
+            *light_toggle = !*light_toggle;
+            schedule.on(Instant::now() + (8_000_000/time).cycles()).unwrap();
+        }
+        else{
+            resources.PA5.set_low();
+            *light_toggle = false;
         }        
     }
     
-    #[task(priority = 4, schedule = [on], resources = [PA5, FREQ, is_on], spawn = [on])]
-    fn blinkOff(){
-        resources.PA5.set_low();
-        if *resources.is_on{
-            let mut time: u32 = 0;
-            resources.FREQ.lock(|FREQ| {
-                time = *FREQ;
-            });
-            schedule.on(Instant::now() + (8_000_000/time).cycles()).unwrap();
-        }
-    }
-
-    #[task(priority = 4, schedule = [blinkOff], resources = [is_on], spawn = [blinkOff])]
+    #[task(priority = 4, resources = [is_on])]
     fn off(){
         *resources.is_on = false;
-        schedule.blinkOff(Instant::now()).unwrap();
     }
 
-    #[task(priority = 2, resources = [FREQ])]
+    #[task(priority = 2, resources = [TIMEOFFSET])]
     fn setFreq(freq: u32){
-        resources.FREQ.lock(|FREQ| {
-            *FREQ = freq;
+        resources.TIMEOFFSET.lock(|timeoffset| {
+            *timeoffset = freq;
         });
     }
 
-    #[task(priority = 1, resources = [ITM])]
+    #[task(priority = 1, capacity = 3, resources = [ITM])]
     fn trace_data(byte: u8) {
         let stim = &mut resources.ITM.stim[0];
         iprintln!(stim, "data {}", byte);
@@ -194,17 +196,16 @@ const APP: () = {
         if block!(tx.write(byte)).is_err() {
             let _ = spawn.trace_error(Error::UsartSendOverflow);
         }
-
     }
 
-    #[interrupt(priority = 3, resources = [RX], spawn = [trace_data, trace_error, echo, interpreter])]
+    #[interrupt(priority = 3, resources = [RX], spawn = [trace_error, echo, interpreter])]
     fn USART2() {
         let rx = resources.RX;
 
         match rx.read() {
             Ok(byte) => {
                 let _ = spawn.echo(byte);
-                if spawn.trace_data(byte).is_err() {
+                if spawn.interpreter(byte).is_err() {
                     let _ = spawn.trace_error(Error::RingBufferOverflow);
                 }
             }
