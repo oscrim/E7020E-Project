@@ -112,7 +112,7 @@ const APP: () = {
             B.iter_mut().for_each(|x| *x = 0);
             *i = 0;
         }
-        // SET
+        //SET
         else if (B[0] == 115) && (B[1] == 101) && (B[2] == 116) {
             let mut value: u32 = 0;        
             if B.contains(&(' ' as u8)) && (B.contains(&13) || B.contains(&10)) {
