@@ -4,14 +4,25 @@ extern crate cortex_m;
 extern crate panic_halt;
 extern crate stm32f4xx_hal as hal;
 use crate::hal::prelude::*;
-use hal::stm32::ITM; //
-use cortex_m::{asm, iprintln};
-use hal::stm32::{GPIOA, GPIOB, GPIOC};
+use cortex_m::{asm, iprintln, peripheral::Peripherals, peripheral::itm::Stim};
+
+use hal::stm32::{GPIOA, GPIOB, GPIOC, EXTI, ITM, ADC1, SPI2};
 use crate::hal::spi::{Spi, Mode, Phase, Polarity, NoMiso};
 use crate::hal::serial::{config::Config, Serial};
 use stm32f4xx_hal::gpio::Analog;
 use stm32f4xx_hal::gpio::gpiob::PB0;
-use stm32f4xx_hal::stm32::ADC1;
+use stm32f4xx_hal::gpio::PushPull;
+use stm32f4xx_hal::gpio::Output;
+use stm32f4xx_hal::gpio::gpioa::PA8;
+use stm32f4xx_hal::gpio::gpioa::PA6;
+use stm32f4xx_hal::gpio::gpiob::PB12;
+use stm32f4xx_hal::gpio::AF5;
+use stm32f4xx_hal::gpio::Alternate;
+use stm32f4xx_hal::gpio::gpiob::PB15;
+use stm32f4xx_hal::gpio::gpiob::PB13;
+use stm32f4xx_hal::serial::Tx;
+use stm32f4xx_hal::serial::Rx;
+use stm32f4xx_hal::interrupt;
 
 use nb::block;
 use rtfm::{app, Instant};
@@ -34,24 +45,21 @@ pub enum Error {
 
 #[app(device = hal::stm32)]
 const APP: () = {
-    static mut ITM: ITM                      = ();
-    static mut ADC: Adc<ADC1>                = ();
-    static mut PB0: PB0<Analog>              = ();
-    // static mut SPI: Spi                    = ();
-    // static mut CS:  PB12<Output<PushPull>> = ();
-    // static mut CD:  PA6<Output<PushPull>>  = ();
-    // static mut AF:  PA8<Output<PushPull>>  = ();
-    // static mut TX:  Tx<hal::stm32::USART2> = ();
-    // static mut RX:  Rx<hal::stm32::USART2> = ();
+    static mut EXTI:   EXTI                                                            = ();
+    static mut ITM:    ITM                                                             = ();
+    static mut ADC:    Adc<ADC1>                                                       = ();
+    static mut PB0:    PB0<Analog>                                                     = ();
+    static mut SPI:    Spi<SPI2, (PB13<Alternate<AF5>>, NoMiso, PB15<Alternate<AF5>>)> = ();
+    static mut CS:     PB12<Output<PushPull>>                                          = ();
+    static mut CD:     PA6<Output<PushPull>>                                           = ();
+    static mut AF:     PA8<Output<PushPull>>                                           = ();
+    static mut TX:     Tx<hal::stm32::USART2>                                          = ();
+    static mut RX:     Rx<hal::stm32::USART2>                                          = ();
 
-    #[init(schedule = [temp])]
+    #[init(schedule = [temp, screen])]
     fn init() {
         let stim = &mut core.ITM.stim[0];
         iprintln!(stim, "PCB start");
-        let rcc = device.RCC.constrain();
-
-        // 16 MHz (default, all clocks)
-        let clocks = rcc.cfgr.freeze();
 
         let gpioa = device.GPIOA.split();
         let gpiob = device.GPIOB.split();
@@ -59,6 +67,24 @@ const APP: () = {
         //---------------------------------------------------------
         let pb0_a = gpiob.pb0.into_analog();
         let pushB = gpiob.pb1.into_pull_down_input();
+
+        let rcc = device.RCC;
+            rcc.ahb1enr.modify(|_, w| w.gpioben().set_bit());
+            rcc.apb2enr.modify(|_, w| w.syscfgen().set_bit());
+
+        let syscfg =  device.SYSCFG;
+            syscfg.exticr1.modify(|_, w| unsafe {w.exti1().bits(0b001) });
+
+        let exti = device.EXTI;
+            exti.imr.modify(|_, w| w.mr1().set_bit());
+            exti.rtsr.modify(|_, w| w.tr1().set_bit());
+            exti.ftsr.modify(|_, w| w.tr1().clear_bit());
+
+        let rcc = rcc.constrain();
+
+        // 16 MHz (default, all clocks)
+        let clocks = rcc.cfgr.freeze();
+            
         let mut relay = gpioc.pc12.into_push_pull_output();
         let adc = Adc::adc1(device.ADC1, true, AdcConfig::default());
         //---------------------------------------------------------
@@ -109,23 +135,39 @@ const APP: () = {
             Ok(v) => iprintln!(stim, "working with version: {:?}", v),
             Err(e) => iprintln!(stim, "error parsing header: {:?}", e),
         }*/
-        
-        cs.set_high();
-        schedule.temp(Instant::now() + (16_000_000).cycles()).unwrap();
-        
-        // RX = rx;
-        // TX = tx;
-        // CS = cs;
-        // CD = cd;
-        // AF = af;
-        // SPI = spi;
+
+        for page in 0..8 {
+            cd.set_low();
+                    
+            let msb_adress = 0x10 + (0>>4);
+            let lsb_adress = 0x00 + (0&0x0F);
+            let adress_page = 0xB0 + (page&0x0F);
+            spi.write(&[msb_adress, lsb_adress, adress_page]);
+            cd.set_high();
+            for _ in 0..102 {
+                spi.write(&[0x00]);
+                for _ in 0..400{
+                    af.set_high();
+                    asm::nop;
+                    af.set_low();
+                }
+            } 
+        }
+        //schedule.screen(Instant::now() + (32_000_000).cycles()).unwrap();
+
+        RX = rx;
+        TX = tx;
+        CS = cs;
+        CD = cd;
+        AF = af;
+        SPI = spi;
         
         ADC = adc;
         PB0 = pb0_a;
+        EXTI = exti;
         ITM = core.ITM;
+        
     }    
-
-
 
     #[idle]
     fn idle() -> ! {
@@ -134,9 +176,54 @@ const APP: () = {
         }
     }
 
-    #[task(priority = 4, schedule = [temp], resources = [ITM, ADC, PB0], spawn = [temp])]
+    #[task(priority = 4, schedule = [screen], resources = [CS, CD, SPI, AF], spawn = [screen])]
+    fn screen(){
+        let mut spi = resources.SPI;
+        let mut cs = resources.CS;
+        let mut cd = resources.CD;
+        let mut af = resources.AF;
+        for page in 0..8 {
+            //asm::bkpt();
+            cs.set_low();
+            cd.set_low();
+            let msb_adress = 0x10 + (0>>4);
+            let lsb_adress = 0x00 + (0&0x0F);
+            let adress_page = 0xB0 + (page&0x0F);
+            spi.write(&[msb_adress, lsb_adress, adress_page]);
+            cd.set_high();
+            for _ in 0..102 {
+                spi.write(&[0xff]);
+                af.set_high();
+                for _ in 0..400{
+                    asm::nop;
+                }
+                af.set_low();
+            } 
+        }         
+        for page in 0..8 {
+            //asm::bkpt();
+            cs.set_low();
+            cd.set_low();
+                    
+            let msb_adress = 0x10 + (0>>4);
+            let lsb_adress = 0x00 + (0&0x0F);
+            let adress_page = 0xB0 + (page&0x0F);
+            spi.write(&[msb_adress, lsb_adress, adress_page]);
+            cd.set_high();
+            for _ in 0..102 {
+                spi.write(&[0x00]);
+                for _ in 0..400{
+                    af.set_high();
+                    asm::nop;
+                    af.set_low();
+                }
+            } 
+        }
+        schedule.screen(Instant::now() + (8_000_000).cycles()).unwrap();
+    }
+
+    #[task(priority = 1, resources = [ITM, ADC, PB0])]
     fn temp(){
-        let stim = &mut resources.ITM.stim[0];
         let adc = resources.ADC;
         let pb0_a = resources.PB0;
 
@@ -152,17 +239,17 @@ const APP: () = {
         else {
             temp_rounded = (temp - 0.5) as i32;
         }
-        iprintln!(stim, "temperature : {:?}", temp_rounded);
-        schedule.temp(Instant::now() + (32_000_000).cycles()).unwrap();
+        resources.ITM.lock(|itm| {
+            let stim = &mut itm.stim[0];
+            iprintln!(stim, "temperature : {:?}", temp_rounded);
+        });
+        
     }
 
-    #[task(priority = 1, capacity = 3, resources = [ITM])]
+    #[task(priority = 1, resources = [ITM], capacity = 3)]
     fn trace_data(byte: u8) {
         let stim = &mut resources.ITM.stim[0];
         iprintln!(stim, "data {}", byte);
-        // for _ in 0..10000 {
-        //     asm::nop();
-        // }
     }
 
     #[task(priority = 1, resources = [ITM])]
@@ -180,9 +267,38 @@ const APP: () = {
         }
     }
 
-    #[interrupt(priority = 3, resources = [RX], spawn = [trace_error, echo, interpreter])]
+    #[task(priority = 1, capacity = 10, resources = [ITM], spawn = [temp])]
+    fn interpreter(byte: u8){
+        static mut B: [u8; 10] = [0u8; 10];
+        static mut i: usize = 0;
+        let stim = &mut resources.ITM.stim[0];
+        
+        B[*i] = byte;
+        *i = *i + 1;
+
+        //tmp: 116 109 112
+        if (B[0] == 116) && (B[1] == 109) && (B[2] == 112) && (B[3] == 13){
+            spawn.temp().unwrap();
+            iprintln!(stim, "USB Temp");
+            B.iter_mut().for_each(|x| *x = 0);
+            *i = 0;
+        }
+        
+        else if (B.contains(&13) && B.contains(&10)){
+            //Resets B!
+            //iprintln!(stim, "Reset");
+            B.iter_mut().for_each(|x| *x = 0);
+            *i = 0;
+        }
+    }
+
+    #[interrupt(priority = 1, resources = [RX, ITM], spawn = [trace_error, echo, interpreter])] 
     fn USART2() {
         let rx = resources.RX;
+        resources.ITM.lock(|itm| {
+            let stim = &mut itm.stim[0];
+            iprintln!(stim, "USART");
+        });
 
         match rx.read() {
             Ok(byte) => {
@@ -197,14 +313,21 @@ const APP: () = {
         }
     }
 
+    #[interrupt(priority = 2, resources = [EXTI], spawn = [temp])]
+    fn EXTI1(){
+        spawn.temp();
+        resources.EXTI.pr.modify(|_, w| w.pr1().set_bit());                                                      
+    }
+
 
 
     // Set of interrupt vectors, free to use for RTFM tasks
     // 1 per priority level suffices
     extern "C" {
         fn EXTI0();
-        fn EXTI1();
         fn EXTI2();
+        fn EXTI3();
+        fn EXTI4();
     }
 
 };
