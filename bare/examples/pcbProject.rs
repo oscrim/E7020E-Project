@@ -182,7 +182,7 @@ const APP: () = {
         let mut cs = resources.CS;
         let mut cd = resources.CD;
         let mut af = resources.AF;
-        for page in 0..8 {
+        for page in 0..4 {
             //asm::bkpt();
             cs.set_low();
             cd.set_low();
@@ -200,7 +200,7 @@ const APP: () = {
                 af.set_low();
             } 
         }         
-        for page in 0..8 {
+        for page in 0..4 {
             //asm::bkpt();
             cs.set_low();
             cd.set_low();
