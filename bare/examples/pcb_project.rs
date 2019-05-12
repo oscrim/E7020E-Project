@@ -4,11 +4,11 @@ extern crate cortex_m;
 extern crate panic_halt;
 extern crate stm32f4xx_hal as hal;
 use crate::hal::prelude::*;
-use cortex_m::{asm, iprintln, peripheral::Peripherals, peripheral::itm::Stim};
+use cortex_m::{asm, iprintln};
 
-use hal::stm32::{GPIOA, GPIOB, GPIOC, EXTI, ITM, ADC1, SPI2};
+use hal::stm32::{EXTI, ITM, ADC1, SPI2};
 use crate::hal::spi::{Spi, Mode, Phase, Polarity, NoMiso};
-use crate::hal::serial::{config::Config, Serial};
+use crate::hal::serial::{config::Config, Serial, Event};
 use stm32f4xx_hal::gpio::Analog;
 use stm32f4xx_hal::gpio::gpiob::PB0;
 use stm32f4xx_hal::gpio::PushPull;
@@ -22,12 +22,10 @@ use stm32f4xx_hal::gpio::gpiob::PB15;
 use stm32f4xx_hal::gpio::gpiob::PB13;
 use stm32f4xx_hal::serial::Tx;
 use stm32f4xx_hal::serial::Rx;
-use stm32f4xx_hal::interrupt;
 
 use nb::block;
 use rtfm::{app, Instant};
-use stm32f4xx_hal::{ 
-  gpio::gpiob,
+use stm32f4xx_hal::{
   adc::{
     Adc,
     config::AdcConfig,
@@ -50,13 +48,13 @@ const APP: () = {
     static mut ADC:    Adc<ADC1>                                                       = ();
     static mut PB0:    PB0<Analog>                                                     = ();
     static mut SPI:    Spi<SPI2, (PB13<Alternate<AF5>>, NoMiso, PB15<Alternate<AF5>>)> = ();
-    static mut CS:     PB12<Output<PushPull>>                                          = ();
+    static mut CS:     PB12<Output<PushPull>>                                          = ();  
     static mut CD:     PA6<Output<PushPull>>                                           = ();
     static mut AF:     PA8<Output<PushPull>>                                           = ();
     static mut TX:     Tx<hal::stm32::USART2>                                          = ();
     static mut RX:     Rx<hal::stm32::USART2>                                          = ();
 
-    #[init(schedule = [temp, screen])]
+    #[init(schedule = [temp, screen_fill_upper])]
     fn init() {
         let stim = &mut core.ITM.stim[0];
         iprintln!(stim, "PCB start");
@@ -66,7 +64,7 @@ const APP: () = {
         let gpioc = device.GPIOC.split();
         //---------------------------------------------------------
         let pb0_a = gpiob.pb0.into_analog();
-        let pushB = gpiob.pb1.into_pull_down_input();
+        let _push_b = gpiob.pb1.into_pull_down_input();
 
         let rcc = device.RCC;
             rcc.ahb1enr.modify(|_, w| w.gpioben().set_bit());
@@ -85,7 +83,7 @@ const APP: () = {
         // 16 MHz (default, all clocks)
         let clocks = rcc.cfgr.freeze();
             
-        let mut relay = gpioc.pc12.into_push_pull_output();
+        let mut _relay = gpioc.pc12.into_push_pull_output();
         let adc = Adc::adc1(device.ADC1, true, AdcConfig::default());
         //---------------------------------------------------------
         //let sck = gpioc.pc10.into_alternate_af6();
@@ -118,19 +116,21 @@ const APP: () = {
             clocks
         );
         
-        let serial = Serial::usart2(
+        let mut serial = Serial::usart2(
             device.USART2,
             (tx, rx),
             Config::default().baudrate(115_200.bps()),
             clocks,
         ).unwrap();
 
-        let (mut tx, mut rx) = serial.split();
+        serial.listen(Event::Rxne);
+
+        let (tx, rx) = serial.split();
 
 
         cs.set_low();
         //let data = 
-        spi.write(&[0x40, 0xA1, 0xC0, 0xA4, 0xA6, 0xA2, 0x2F, 0x27, 0x81, 0x10, 0xFA, 0x90, 0xAF]);
+        spi.write(&[0x40, 0xA1, 0xC0, 0xA4, 0xA6, 0xA2, 0x2F, 0x27, 0x81, 0x10, 0xFA, 0x90, 0xAF]).unwrap();
         /*match data {
             Ok(v) => iprintln!(stim, "working with version: {:?}", v),
             Err(e) => iprintln!(stim, "error parsing header: {:?}", e),
@@ -139,21 +139,20 @@ const APP: () = {
         for page in 0..8 {
             cd.set_low();
                     
-            let msb_adress = 0x10 + (0>>4);
+            let msb_adress = 0x10 + (0>>4); 
             let lsb_adress = 0x00 + (0&0x0F);
             let adress_page = 0xB0 + (page&0x0F);
-            spi.write(&[msb_adress, lsb_adress, adress_page]);
+            spi.write(&[msb_adress, lsb_adress, adress_page]).unwrap();
             cd.set_high();
             for _ in 0..102 {
-                spi.write(&[0x00]);
+                spi.write(&[0x00]).unwrap();
                 for _ in 0..400{
                     af.set_high();
-                    asm::nop;
                     af.set_low();
                 }
             } 
         }
-        //schedule.screen(Instant::now() + (32_000_000).cycles()).unwrap();
+        schedule.screen_fill_upper(Instant::now() + (8_000_000).cycles()).unwrap();
 
         RX = rx;
         TX = tx;
@@ -176,31 +175,62 @@ const APP: () = {
         }
     }
 
-    #[task(priority = 4, schedule = [screen], resources = [CS, CD, SPI, AF], spawn = [screen])]
-    fn screen(){
+    #[task(priority = 4, schedule = [screen_fill_lower], resources = [CS, CD, SPI, AF], spawn = [screen_fill_lower])]
+    fn screen_fill_upper(){
         let mut spi = resources.SPI;
         let mut cs = resources.CS;
         let mut cd = resources.CD;
         let mut af = resources.AF;
-        for page in 0..8 {
+        for page in 0..4 {
             //asm::bkpt();
             cs.set_low();
             cd.set_low();
             let msb_adress = 0x10 + (0>>4);
             let lsb_adress = 0x00 + (0&0x0F);
             let adress_page = 0xB0 + (page&0x0F);
-            spi.write(&[msb_adress, lsb_adress, adress_page]);
+            spi.write(&[msb_adress, lsb_adress, adress_page]).unwrap();
             cd.set_high();
             for _ in 0..102 {
-                spi.write(&[0xff]);
+                spi.write(&[0xff]).unwrap();
                 af.set_high();
-                for _ in 0..400{
-                    asm::nop;
-                }
                 af.set_low();
             } 
         }         
-        for page in 0..8 {
+        
+        schedule.screen_fill_lower(Instant::now() + (1_000_000).cycles()).unwrap();
+    }
+    #[task(priority = 4, schedule = [screen_clear_upper], resources = [CS, CD, SPI, AF], spawn = [screen_clear_upper])]
+    fn screen_fill_lower(){
+        let mut spi = resources.SPI;
+        let mut cs = resources.CS;
+        let mut cd = resources.CD;
+        let mut af = resources.AF;
+        for page in 4..8 {
+            //asm::bkpt();
+            cs.set_low();
+            cd.set_low();
+            let msb_adress = 0x10 + (0>>4);
+            let lsb_adress = 0x00 + (0&0x0F);
+            let adress_page = 0xB0 + (page&0x0F);
+            spi.write(&[msb_adress, lsb_adress, adress_page]).unwrap();
+            cd.set_high();
+            for _ in 0..102 {
+                spi.write(&[0xff]).unwrap();
+                af.set_high();
+                af.set_low();
+            } 
+        }         
+        
+        schedule.screen_clear_upper(Instant::now() + (16_000_000).cycles()).unwrap();
+    }
+
+    #[task(priority = 4, schedule = [screen_clear_lower], resources = [CS, CD, SPI, AF], spawn = [screen_clear_lower])]
+    fn screen_clear_upper(){
+        let mut spi = resources.SPI;
+        let mut cs = resources.CS;
+        let mut cd = resources.CD;
+        let mut af = resources.AF;
+        for page in 0..4 {
             //asm::bkpt();
             cs.set_low();
             cd.set_low();
@@ -208,21 +238,45 @@ const APP: () = {
             let msb_adress = 0x10 + (0>>4);
             let lsb_adress = 0x00 + (0&0x0F);
             let adress_page = 0xB0 + (page&0x0F);
-            spi.write(&[msb_adress, lsb_adress, adress_page]);
+            spi.write(&[msb_adress, lsb_adress, adress_page]).unwrap();
             cd.set_high();
             for _ in 0..102 {
-                spi.write(&[0x00]);
-                for _ in 0..400{
-                    af.set_high();
-                    asm::nop;
-                    af.set_low();
-                }
+                spi.write(&[0x00]).unwrap();
+                af.set_high();
+                af.set_low();
             } 
-        }
-        schedule.screen(Instant::now() + (8_000_000).cycles()).unwrap();
+        }        
+        
+        schedule.screen_clear_lower(Instant::now() + (1_000_000).cycles()).unwrap();
     }
 
-    #[task(priority = 1, resources = [ITM, ADC, PB0])]
+    #[task(priority = 4, schedule = [screen_fill_upper], resources = [CS, CD, SPI, AF], spawn = [screen_fill_upper])]
+    fn screen_clear_lower(){
+        let mut spi = resources.SPI;
+        let mut cs = resources.CS;
+        let mut cd = resources.CD;
+        let mut af = resources.AF;
+        for page in 4..8 {
+            //asm::bkpt();
+            cs.set_low();
+            cd.set_low();
+                    
+            let msb_adress = 0x10 + (0>>4);
+            let lsb_adress = 0x00 + (0&0x0F);
+            let adress_page = 0xB0 + (page&0x0F);
+            spi.write(&[msb_adress, lsb_adress, adress_page]).unwrap();
+            cd.set_high();
+            for _ in 0..102 {
+                spi.write(&[0x00]).unwrap();
+                af.set_high();
+                af.set_low();
+            } 
+        }        
+        
+        schedule.screen_fill_upper(Instant::now() + (16_000_000).cycles()).unwrap();
+    }
+
+    #[task(priority = 2, resources = [ITM, ADC, PB0, TX], spawn=[send_byte])]
     fn temp(){
         let adc = resources.ADC;
         let pb0_a = resources.PB0;
@@ -239,70 +293,93 @@ const APP: () = {
         else {
             temp_rounded = (temp - 0.5) as i32;
         }
+
         resources.ITM.lock(|itm| {
             let stim = &mut itm.stim[0];
             iprintln!(stim, "temperature : {:?}", temp_rounded);
         });
-        
+
+        let mut msg: [u8; 10] = [84, 101, 109, 112, 58, 32, 0, 0, 13, 10];
+        let tens: u8 = (temp_rounded / 10) as u8;
+        let ones: u8 = temp_rounded as u8 - (tens*10);
+
+        msg[6] = tens + 48;
+        msg[7] = ones + 48;
+
+        for x in msg.iter() {
+            spawn.send_byte(*x).unwrap();
+        }
+    }
+    #[task(priority = 3, resources = [TX], spawn=[trace_error])]
+    fn send_byte(byte: u8){
+        resources.TX.lock(|tx| {
+            if block!(tx.write(byte)).is_err(){
+                let _ = spawn.trace_error(Error::UsartSendOverflow);
+            } 
+        });
     }
 
     #[task(priority = 1, resources = [ITM], capacity = 3)]
     fn trace_data(byte: u8) {
-        let stim = &mut resources.ITM.stim[0];
-        iprintln!(stim, "data {}", byte);
+        resources.ITM.lock(|itm| {
+            let stim = &mut itm.stim[0];
+            iprintln!(stim, "data {}", byte);
+        });
     }
 
     #[task(priority = 1, resources = [ITM])]
     fn trace_error(error: Error) {
-        let stim = &mut resources.ITM.stim[0];
-        iprintln!(stim, "{:?}", error);
+        resources.ITM.lock(|itm| {
+            let stim = &mut itm.stim[0];
+            iprintln!(stim, "{:?}", error);
+        });
     }
 
     #[task(priority = 2, resources = [TX], spawn = [trace_error])]
     fn echo(byte: u8) {
-        let tx = resources.TX;
-
-        if block!(tx.write(byte)).is_err() {
-            let _ = spawn.trace_error(Error::UsartSendOverflow);
-        }
+        resources.TX.lock(|tx| {
+            if block!(tx.write(byte)).is_err() {
+                let _ = spawn.trace_error(Error::UsartSendOverflow);
+            }
+        });
     }
 
-    #[task(priority = 1, capacity = 10, resources = [ITM], spawn = [temp])]
+    #[task(priority = 2, resources = [ITM], capacity = 10, spawn = [temp, send_byte])]
     fn interpreter(byte: u8){
         static mut B: [u8; 10] = [0u8; 10];
-        static mut i: usize = 0;
-        let stim = &mut resources.ITM.stim[0];
+        static mut I: usize = 0;
         
-        B[*i] = byte;
-        *i = *i + 1;
+        B[*I] = byte;
+        *I = *I + 1;
 
         //tmp: 116 109 112
-        if (B[0] == 116) && (B[1] == 109) && (B[2] == 112) && (B[3] == 13){
+        if (B[0] == 116) && (B[1] == 109) && (B[2] == 112) && (B[3] == 13) && (B[4] == 10){
             spawn.temp().unwrap();
-            iprintln!(stim, "USB Temp");
             B.iter_mut().for_each(|x| *x = 0);
-            *i = 0;
+            *I = 0;
         }
         
-        else if (B.contains(&13) && B.contains(&10)){
+        else if B.contains(&13) && B.contains(&10){
             //Resets B!
             //iprintln!(stim, "Reset");
             B.iter_mut().for_each(|x| *x = 0);
-            *i = 0;
+            *I = 0;
         }
+            // resources.ITM.lock(|itm| {
+            //     let stim = &mut itm.stim[0];
+            //     for x in B {
+            //         iprintln!(stim, "{:?}", *x);
+            //     }
+            // });
     }
 
     #[interrupt(priority = 1, resources = [RX, ITM], spawn = [trace_error, echo, interpreter])] 
     fn USART2() {
         let rx = resources.RX;
-        resources.ITM.lock(|itm| {
-            let stim = &mut itm.stim[0];
-            iprintln!(stim, "USART");
-        });
 
         match rx.read() {
             Ok(byte) => {
-                let _ = spawn.echo(byte);
+                //let _ = spawn.echo(byte);
                 if spawn.interpreter(byte).is_err() {
                     let _ = spawn.trace_error(Error::RingBufferOverflow);
                 }
@@ -313,9 +390,9 @@ const APP: () = {
         }
     }
 
-    #[interrupt(priority = 2, resources = [EXTI], spawn = [temp])]
+    #[interrupt(priority = 1, resources = [EXTI], spawn = [temp])]
     fn EXTI1(){
-        spawn.temp();
+        spawn.temp().unwrap();
         resources.EXTI.pr.modify(|_, w| w.pr1().set_bit());                                                      
     }
 
