@@ -197,7 +197,7 @@ const APP: () = {
             } 
         }         
         
-        schedule.screen_fill_lower(Instant::now() + (1_000_000).cycles()).unwrap();
+        schedule.screen_fill_lower(Instant::now()).unwrap();
     }
     #[task(priority = 4, schedule = [screen_clear_upper], resources = [CS, CD, SPI, AF], spawn = [screen_clear_upper])]
     fn screen_fill_lower(){
@@ -247,7 +247,7 @@ const APP: () = {
             } 
         }        
         
-        schedule.screen_clear_lower(Instant::now() + (1_000_000).cycles()).unwrap();
+        schedule.screen_clear_lower(Instant::now()).unwrap();
     }
 
     #[task(priority = 4, schedule = [screen_fill_upper], resources = [CS, CD, SPI, AF], spawn = [screen_fill_upper])]
